@@ -25,7 +25,7 @@ namespace CodingGirls_project.Controllers
                 return new JsonResult("Não há nenhum curso cadastrado.");
 
             var courses = await _context.Course
-                .Where(c => c.Active)
+              //  .Where(c => c.Active)
                 .Include(c => c.Students)
                 .ToListAsync();
 
@@ -36,6 +36,7 @@ namespace CodingGirls_project.Controllers
             });
         }
 
+
         // GET: api/Course/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Course>> GetCourse(int id)
@@ -44,16 +45,10 @@ namespace CodingGirls_project.Controllers
           {
               return NotFound();
           }
-            // var course = await _context.Course.FindAsync(id);
+            
             var course = await _context.Course
                 .FindAsync(id);
-                //.Include(c => c.Students);               
               
-            /*
-            if (course == null)
-            {
-                return NotFound();
-            }*/
 
             return course;
         }
@@ -90,20 +85,7 @@ namespace CodingGirls_project.Controllers
             return Ok("Alteração realizada com sucesso!");
         }
 
-        // POST: api/Course
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-      /*  [HttpPost]
-        public async Task<ActionResult<Course>> PostCourse(Course course)
-        {
-          if (_context.Course == null)
-          {
-              return Problem("Entity set 'SchoolContext.Course'  is null.");
-          }
-            _context.Course.Add(course);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetCourse", new { id = course.Id }, course);
-        }*/
+       
         [HttpPost("add")]
         public async Task<ActionResult<Course>> PostCourse(Course course)
         {
@@ -157,17 +139,26 @@ namespace CodingGirls_project.Controllers
             {
                 return NotFound("Não há nenhum curso cadastrado");
             }
-            var contato = await _context.Course.FindAsync(id);
+            var course = await _context.Course.FindAsync(id);
 
-            if (contato == null)
+            if (course == null)
             {
                 return NotFound($"O id: {id} não existe na base de dados.");
             }
 
-            _context.Course.Remove(contato);
+            var _courseStudents = await _context.Student.Where(s => s.CourseId == id)
+                .ToListAsync();
+
+            if (_courseStudents.Count > 0)
+            {
+                return Content($"Curso {id} contem alunos e não pode ser deletada.");
+            }
+
+            _context.Course.Remove(course);
             await _context.SaveChangesAsync();
 
             return Ok("O registro foi removido com sucesso!");
+        
         }
 
         private bool CourseExists(int id)

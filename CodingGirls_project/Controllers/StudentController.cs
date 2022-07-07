@@ -94,9 +94,10 @@ namespace CodingGirls_project.Controllers
                 {
                     if (student.StudentName == string.Empty)
                         listErrors.Add("O campo nome está ausente!");
-
+                    
                     response = JsonSerializer.Serialize(listErrors);
                 }
+
                 else if (!StudentExists(student.Id))
                 {
                     _context.Student.Add(student);
@@ -107,6 +108,7 @@ namespace CodingGirls_project.Controllers
                 {
                     response = "Este aluno já possui cadastro!";
                 }
+
             }
             catch (Exception ex)
             {
